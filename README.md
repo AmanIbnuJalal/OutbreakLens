@@ -6,23 +6,25 @@ OutbreakLens is an AI-powered public health surveillance system for early diseas
 ## Tech Stack
 
 **Frontend**
--Framework: React / Next.js
+- Framework: React / Next.js
 
--Styling: Tailwind CSS
+- Styling: Tailwind CSS
 
 Maps & Geospatial: Mapbox GL / Leaflet (interactive heatmaps and outbreak clusters)
 
 **Backend & APIs**
--Runtime / Framework: Python (FastAPI)
 
--Real-time Data: WebSockets
+- Runtime / Framework: Python (FastAPI)
 
--Database: PostgreSQL / Supabase
+- Real-time Data: WebSockets
+
+- Database: PostgreSQL / Supabase
 
 **AI & Analytics Engine**
--Machine Learning: PyTorch / Scikit-learn (Anomaly Detection Models)
 
--Data Processing: Pandas / NumPy
+- Machine Learning: PyTorch / Scikit-learn (Anomaly Detection Models)
+
+- Data Processing: Pandas / NumPy
 
 ##  Team Members
 - **Akshay Cv**
