@@ -1,7 +1,8 @@
 # OutbreakLens
+Public Health Surveillance Network
 
 ## Overview
-OutbreakLens is an AI-powered public health surveillance system for early disease outbreak detection in rural and underserved areas. It aggregates data from local clinics and pharmacies—such as symptoms and medicine sales—and uses anomaly detection and interactive heatmaps to issue early warnings to health officials.
+OutbreakLens is an AI-powered public health surveillance system designed to enable early disease outbreak detection in rural and underserved areas. It addresses isolated health data by creating a decentralized platform where local clinics and pharmacies can log patient counts, symptom reports, and medicine sales. The system uses real-time anomaly detection to identify statistical spikes and displays high-risk areas via interactive heatmaps to help health authorities take rapid preventive measures.
 
 ## Tech Stack
 
