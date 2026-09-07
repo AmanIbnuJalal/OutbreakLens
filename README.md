@@ -3,7 +3,7 @@
 ## Overview
 OutbreakLens is an AI-powered public health surveillance system for early disease outbreak detection in rural and underserved areas. It aggregates data from local clinics and pharmacies—such as symptoms and medicine sales—and uses anomaly detection and interactive heatmaps to issue early warnings to health officials.
 
-##Tech Stack
+## Tech Stack
 
 **Frontend**
 -Framework: React / Next.js
@@ -25,7 +25,7 @@ Maps & Geospatial: Mapbox GL / Leaflet (interactive heatmaps and outbreak cluste
 -Data Processing: Pandas / NumPy
 
 ##  Team Members
--**Akshay Cv**
--**Muhammed Aman**
--**Joel Siby**
--**Muhammed Ashiq**
+- **Akshay Cv**
+- **Muhammed Aman**
+- **Joel Siby**
+- **Muhammed Ashiq**
