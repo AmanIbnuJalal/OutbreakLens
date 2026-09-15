@@ -10,6 +10,12 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication and current user
+  - name: reports
+    description: Source report submission
+  - name: admin
+    description: Health official operations
 paths:
   /healthz:
     get:
@@ -24,7 +30,260 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /auth/register:
+    post:
+      operationId: registerSource
+      tags: [auth]
+      summary: Register a clinic or pharmacy account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterInput"
+      responses:
+        "201":
+          description: Registered source user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "409":
+          description: Email is already registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Sign in
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Authenticated user and token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      tags: [auth]
+      summary: Get the signed-in user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /reports:
+    post:
+      operationId: createReport
+      tags: [reports]
+      summary: Submit a syndromic report
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportInput"
+      responses:
+        "201":
+          description: Created report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "403":
+          description: Source role required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /reports/mine:
+    get:
+      operationId: listMyReports
+      tags: [reports]
+      summary: List the current source's reports
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Source reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+  /admin/overview:
+    get:
+      operationId: getAdminOverview
+      tags: [admin]
+      summary: Get dashboard overview metrics
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Overview metrics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminOverview"
+  /admin/reports:
+    get:
+      operationId: listAdminReports
+      tags: [admin]
+      summary: List all reports with optional filters
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: location
+          in: query
+          schema:
+            type: string
+        - name: symptom
+          in: query
+          schema:
+            type: string
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Filtered reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+  /admin/alerts:
+    get:
+      operationId: listAlerts
+      tags: [admin]
+      summary: List detected outbreak alerts
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Alerts ordered by severity
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OutbreakAlert"
+  /admin/run-detection:
+    post:
+      operationId: runDetection
+      tags: [admin]
+      summary: Run rolling z-score detection
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Detection result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DetectionResult"
+  /admin/heatmap-data:
+    get:
+      operationId: getHeatmapData
+      tags: [admin]
+      summary: Get location-level heatmap points
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Aggregated heatmap points
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HeatmapPoint"
+  /admin/sources:
+    get:
+      operationId: listSources
+      tags: [admin]
+      summary: List registered reporting sources
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Registered sources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+  /admin/trends:
+    get:
+      operationId: getTrend
+      tags: [admin]
+      summary: Get a daily report trend for a location and symptom
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: location
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: symptom
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Daily trend points
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TrendPoint"
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     HealthStatus:
       type: object
@@ -33,4 +292,204 @@ components:
           type: string
       required:
         - status
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [admin, source]
+        sourceName:
+          type: string
+        sourceType:
+          type: string
+          enum: [clinic, pharmacy]
+        locationName:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, email, role, sourceName, sourceType, locationName, lat, lng, createdAt]
+    RegisterInput:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        sourceName:
+          type: string
+          minLength: 1
+        sourceType:
+          type: string
+          enum: [clinic, pharmacy]
+        locationName:
+          type: string
+          minLength: 1
+        lat:
+          type: number
+        lng:
+          type: number
+      required: [email, password, sourceName, sourceType, locationName, lat, lng]
+    LoginInput:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 1
+      required: [email, password]
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+      required: [token, user]
+    Report:
+      type: object
+      properties:
+        id:
+          type: integer
+        submittedBy:
+          type: integer
+        sourceName:
+          type: string
+        sourceType:
+          type: string
+          enum: [clinic, pharmacy]
+        locationName:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+        symptom:
+          type: string
+        patientCount:
+          type: integer
+        medicineName:
+          type: [string, "null"]
+        unitsSold:
+          type: [integer, "null"]
+        reportDate:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, submittedBy, sourceName, sourceType, locationName, lat, lng, symptom, patientCount, medicineName, unitsSold, reportDate, createdAt]
+    ReportInput:
+      type: object
+      properties:
+        symptom:
+          type: string
+          minLength: 1
+        patientCount:
+          type: integer
+          minimum: 0
+        medicineName:
+          type: [string, "null"]
+        unitsSold:
+          type: [integer, "null"]
+        reportDate:
+          type: string
+          format: date
+      required: [symptom, patientCount, reportDate]
+    OutbreakAlert:
+      type: object
+      properties:
+        id:
+          type: integer
+        locationName:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+        symptom:
+          type: string
+        zScore:
+          type: number
+        alertDate:
+          type: string
+          format: date
+        severity:
+          type: string
+          enum: [watch, elevated, critical]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, locationName, lat, lng, symptom, zScore, alertDate, severity, createdAt]
+    AdminOverview:
+      type: object
+      properties:
+        totalReports:
+          type: integer
+        reportsLast7Days:
+          type: integer
+        activeAlerts:
+          type: integer
+        registeredSources:
+          type: integer
+        locationsMonitored:
+          type: integer
+        lastDetectionAt:
+          type: [string, "null"]
+          format: date-time
+      required: [totalReports, reportsLast7Days, activeAlerts, registeredSources, locationsMonitored, lastDetectionAt]
+    DetectionResult:
+      type: object
+      properties:
+        alertsCreated:
+          type: integer
+        detectedAt:
+          type: string
+          format: date-time
+      required: [alertsCreated, detectedAt]
+    HeatmapPoint:
+      type: object
+      properties:
+        lat:
+          type: number
+        lng:
+          type: number
+        intensity:
+          type: number
+        locationName:
+          type: string
+      required: [lat, lng, intensity, locationName]
+    TrendPoint:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        count:
+          type: integer
+        isAnomaly:
+          type: boolean
+        zScore:
+          type: [number, "null"]
+      required: [date, count, isAnomaly, zScore]
 

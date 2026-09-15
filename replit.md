@@ -1,6 +1,6 @@
-# [Project name]
+# OutbreakLens
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+OutbreakLens helps clinics and pharmacies submit syndromic reports while health officials monitor geographic signals and detected outbreak anomalies.
 
 ## Run & Operate
 
@@ -22,23 +22,34 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `lib/api-spec/openapi.yaml` — source of truth for auth, reporting, alerts, and dashboard API contracts.
+- `lib/db/src/schema/` — Drizzle schema for users, reports, and outbreak alerts.
+- `artifacts/api-server/src/routes/` — Express API routes.
+- `artifacts/outbreaklens/src/` — React frontend with role-gated auth, source reporting, and admin dashboard.
+- `artifacts/api-server/src/seed.ts` — local demo data generator.
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Local JWT auth is intentional for this demo because the product plan explicitly calls for source/admin roles and bearer-token flows.
+- The API server is shared under `/api`; the frontend uses generated OpenAPI hooks rather than handwritten request types.
+- Report ownership and source location are derived from the authenticated source account on the server.
+- Detection stores alert snapshots and recomputes them when an admin runs the scan, keeping the demo repeatable.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Source users can register, sign in, submit symptom reports, and review their own history.
+- Admin users can review network metrics, reporting sources, heatmap points, trends, and anomaly alerts.
+- The seeded local demo includes five sources, 90 days of reports, and two injected outbreak windows.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+No additional preferences recorded.
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- `SESSION_SECRET` must be available for API authentication.
+- Run `pnpm --filter @workspace/api-server run seed` to reset local demo data and regenerate the injected outbreak windows.
+- After changing `lib/api-spec/openapi.yaml`, run `pnpm --filter @workspace/api-spec run codegen`.
 
 ## Pointers
 

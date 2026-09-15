@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "OutbreakLens"
+description = "A public-health surveillance workspace for clinic and pharmacy reporting, outbreak detection, alert review, and geographic trend monitoring."
+version = "1.0.0"
+id = "artifacts/outbreaklens"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22028
+
+[services.development]
+run = "pnpm --filter @workspace/outbreaklens run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/outbreaklens", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/outbreaklens/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22028"
+BASE_PATH = "/"
