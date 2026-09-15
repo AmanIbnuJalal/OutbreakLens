@@ -246,11 +246,17 @@ router.get(
       current.intensity += report.patientCount;
       byLocation.set(report.locationName, current);
     }
+    const maxIntensity = Math.max(
+      ...[...byLocation.values()].map((value) => value.intensity),
+      1,
+    );
     res.json(
       GetHeatmapDataResponse.parse(
         [...byLocation.entries()].map(([locationName, value]) => ({
           locationName,
-          ...value,
+          lat: value.lat,
+          lng: value.lng,
+          intensity: value.intensity / maxIntensity,
         })),
       ),
     );

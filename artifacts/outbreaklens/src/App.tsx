@@ -23,6 +23,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { clearToken, setToken, getToken } from '@/lib/auth';
 import NotFound from '@/pages/not-found';
+import { OutbreakMap } from '@/components/leaflet-heatmap';
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30_000, retry: 1 } } });
 
@@ -142,8 +143,7 @@ function SeverityBadge({ severity }: { severity: string }) {
 }
 
 function Heatmap({ points }: { points: HeatmapPoint[] }) {
-  const list = points || [];
-  return <div className="relative h-[310px] overflow-hidden rounded-xl border border-border bg-[#e5efed] app-grid"><div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'radial-gradient(circle at 28% 35%, hsl(187 63% 28% / .15) 0 1px, transparent 1px), radial-gradient(circle at 72% 68%, hsl(187 63% 28% / .13) 0 1px, transparent 1px)', backgroundSize: '80px 80px, 110px 110px' }} /><svg className="absolute inset-0 h-full w-full opacity-30" viewBox="0 0 800 310" preserveAspectRatio="none"><path d="M-20 240 C100 200 100 80 230 130 S380 260 500 160 S680 60 820 95" fill="none" stroke="hsl(187 63% 28%)" strokeWidth="1.4" /><path d="M-20 80 C110 120 190 30 300 70 S480 160 570 78 S720 160 820 120" fill="none" stroke="hsl(187 63% 28% / .5)" strokeWidth="1" /></svg>{list.length === 0 ? <div className="absolute inset-0 grid place-items-center text-sm text-muted-foreground">No locations mapped yet</div> : list.map((point, index) => { const x = `${Math.min(88, Math.max(10, ((point.lng + 180) / 360) * 100))}%`; const y = `${Math.min(88, Math.max(12, ((90 - point.lat) / 180) * 100))}%`; const size = 18 + point.intensity * 24; return <div key={`${point.locationName}-${index}`} className="group absolute -translate-x-1/2 -translate-y-1/2" style={{ left: x, top: y }}><span className="absolute -inset-3 rounded-full bg-[hsl(var(--chart-3)/.18)] blur-sm" style={{ width: size + 24, height: size + 24 }} /><span className="relative block rounded-full border-2 border-white bg-[hsl(var(--chart-3))] shadow-md" style={{ width: size, height: size, opacity: .65 + point.intensity * .35 }} /><span className="pointer-events-none absolute bottom-full left-1/2 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-sidebar px-2 py-1 text-[10px] text-white group-hover:block">{point.locationName} · {Math.round(point.intensity * 100)} index</span></div>; })}<div className="absolute bottom-3 left-3 rounded-lg border border-white/70 bg-white/75 px-2.5 py-2 text-[10px] text-muted-foreground backdrop-blur"><div className="mb-1 font-semibold text-foreground">Signal intensity</div><div className="flex items-center gap-2"><span className="h-2 w-20 rounded-full bg-gradient-to-r from-primary/20 via-[hsl(var(--chart-3)/.55)] to-[hsl(var(--chart-3))]" /><span>low</span><span>high</span></div></div></div>;
+  return <OutbreakMap points={points || []} />;
 }
 
 function TrendChart({ points }: { points: TrendPoint[] }) {
