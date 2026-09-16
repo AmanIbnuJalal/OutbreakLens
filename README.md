@@ -25,11 +25,7 @@ cd <project-directory>
 pnpm install
 ```
 
-### 3. Start PostgreSQL
-
-```bash
-docker compose up -d postgres
-```
+### 3. Configure the environment
 
 Copy the local environment template:
 
@@ -37,54 +33,15 @@ Copy the local environment template:
 cp .env.example .env
 ```
 
-Load the variables into your shell. On macOS/Linux:
+### 4. Start the application
+
+Start PostgreSQL, the API server, and the frontend web app with Docker Compose:
 
 ```bash
-set -a
-source .env
-set +a
+docker compose up --build
 ```
 
-On Windows PowerShell:
-
-```powershell
-Get-Content .env | ForEach-Object {
-  if ($_ -match '^([^#][^=]*)=(.*)$') {
-    Set-Item -Path "Env:$($matches[1])" -Value $matches[2]
-  }
-}
-```
-
-### 4. Create the database tables and demo data
-
-```bash
-pnpm --filter @workspace/db run push
-pnpm --filter @workspace/api-server run seed
-```
-
-The seed command creates five reporting sources, 90 days of sample reports, and two injected outbreak windows.
-
-### 5. Start the API
-
-In terminal 1:
-
-```bash
-set -a
-source .env
-set +a
-PORT=8080 pnpm --filter @workspace/api-server run dev
-```
-
-### 6. Start the web app
-
-In terminal 2:
-
-```bash
-set -a
-source .env
-set +a
-PORT=5173 BASE_PATH=/ API_SERVER_URL=http://localhost:8080 pnpm --filter @workspace/outbreaklens run dev
-```
+This command automatically starts the database, applies the schema, seeds the demo data (including five reporting sources, 90 days of sample reports, and two injected outbreak windows), and starts both the API and frontend development servers.
 
 Open [http://localhost:5173](http://localhost:5173).
 
